@@ -249,3 +249,234 @@
 - [剑指 Offer 37. 序列化二叉树](https://leetcode.cn/problems/xu-lie-hua-er-cha-shu-lcof/)
 
   > 使用层序遍历将二叉树进行序列化和反序列化
+
+
+
+## Heap
+
+- [剑指 Offer 40. 最小的k个数](https://leetcode.cn/problems/zui-xiao-de-kge-shu-lcof/)
+
+  > 1. 优先队列
+  > 2. 快速排序
+  > 3. 快速选择
+  >
+  > ```java
+  > public int[] getLeastNumbers(int[] arr, int k) {
+  >     if(k >= arr.length) return arr;
+  >     return quickSelect(arr, k, 0, arr.length-1);
+  > }
+  > public int[] quickSelect(int[] arr, int k, int l, int r) {
+  >     int i = l, j = r;
+  >     while(i < j) {
+  >         while(i < j && arr[j] >= arr[l]) j--;
+  >         while(i < j && arr[i] <= arr[l]) i++;
+  >         swap(arr, i, j);
+  >     }
+  >     swap(arr, l, i);
+  >     if(i > k) return quickSelect(arr, k, l, i-1);
+  >     if(i < k) return quickSelect(arr, k, i+1, r);
+  >     return Arrays.copyOf(arr, k);
+  > }
+  > private void swap(int[] arr, int i, int j) {
+  >     int tmp = arr[i];
+  >     arr[i] = arr[j];
+  >     arr[j] = tmp;
+  > }
+  > ```
+
+## Map
+
+- [剑指 Offer 50. 第一个只出现一次的字符](https://leetcode.cn/problems/di-yi-ge-zhi-chu-xian-yi-ci-de-zi-fu-lcof/)
+
+  > 1. HashMap
+  > 2. LinkedHashMap：有序哈希表中的键值对是 **按照插入顺序排序** 的。基于此，可通过遍历有序哈希表，实现搜索首个 “数量为 1 的字符”。
+  >
+  > ```java
+  > public char firstUniqChar(String s) {
+  >     Map<Character, Boolean> map = new LinkedHashMap<>();
+  >     for(char l : s.toCharArray()){
+  >         map.put(l, !map.containsKey(l));
+  >     }
+  >     for(Map.Entry<Character, Boolean> entry : map.entrySet()){
+  >         if(entry.getValue()) return entry.getKey();
+  >     }        
+  >     return ' ';
+  > }
+  > ```
+
+
+
+## Graph
+
+- [剑指 Offer 12. 矩阵中的路径](https://leetcode.cn/problems/ju-zhen-zhong-de-lu-jing-lcof/)
+
+  > 矩阵搜索问题：深度优先搜索 + 剪枝
+  >
+  > 注意：
+  >
+  > 1. 矩阵中的每个节点都可能作为起始点，所以主函数要对矩阵每个节点分别进行判断，只要有一个节点返回true就表示存在。
+  > 2. 在dfs的过程中，可以使用visited数组来判断节点是否已遍历过，但在上面的条件下空间开销会增大，可以在原矩阵数组上进行操作：遍历过的节点修改值为`\0`，在递归调用结束后，恢复原来的值。
+  >
+  > ```java
+  > public boolean exist(char[][] board, String word) {
+  >     char[] words = word.toCharArray();
+  >     for(int i = 0; i < board.length; i++) {
+  >         for(int j = 0; j < board[0].length; j++) {
+  >             if(dfs(board, words, i, j, 0)) return true;
+  >         }
+  >     }
+  >     return false;
+  > }
+  > boolean dfs(char[][] board, char[] word, int i, int j, int k) {
+  >     if(i >= board.length || i < 0 || j >= board[0].length || j < 0 || board[i][j] != word[k]) return false;
+  >     if(k == word.length - 1) return true;
+  >     board[i][j] = '\0';
+  >     boolean res = dfs(board, word, i + 1, j, k + 1) || dfs(board, word, i - 1, j, k + 1) || dfs(board, word, i, j + 1, k + 1) || dfs(board, word, i , j - 1, k + 1);
+  >     board[i][j] = word[k];
+  >     return res;
+  > }
+  > ```
+
+- [面试题13. 机器人的运动范围](https://leetcode.cn/problems/ji-qi-ren-de-yun-dong-fan-wei-lcof/)
+
+  > 和上一题类似，计算数位和时可以通过调用函数逐一计算，也可以通过下面的增量方法计算：
+  >
+  > 数位和增量公式：**`(x + 1) % 10 != 0 ? s_x + 1 : s_x - 8;`**
+  >
+  > ```java
+  > int m, n, k;
+  > boolean[][] visited;
+  > public int movingCount(int m, int n, int k) {
+  >     this.m = m; this.n = n; this.k = k;
+  >     this.visited = new boolean[m][n];
+  >     return dfs(0, 0, 0, 0);
+  > }
+  > public int dfs(int i, int j, int si, int sj) {
+  >     if(i >= m || j >= n || k < si + sj || visited[i][j]) return 0;
+  >     visited[i][j] = true;
+  >     return 1 + dfs(i + 1, j, (i + 1) % 10 != 0 ? si + 1 : si - 8, sj) + dfs(i, j + 1, si, (j + 1) % 10 != 0 ? sj + 1 : sj - 8);
+  >     }
+  > ```
+
+
+
+## 具体算法类题目
+
+### 斐波那契数列
+
+- [剑指 Offer 10- I. 斐波那契数列](https://leetcode.cn/problems/fei-bo-na-qi-shu-lie-lcof/)
+
+  > 1. 递归法
+  >
+  > 2. 记忆化递归法
+  >
+  > 3. 动态规划——时间和空间最佳解法
+  >
+  >    `dp[i+1] = dp[i] + dp[i-1]`，`dp[0] = 0`, `dp[1] = 1`,返回`dp[n]`
+  >
+  >    - 空间复杂度优化：只需初始化三个整型变量`sum`，`a`，`b`，利用辅助变量`sum`使`a`和`b`交替前进
+  >    - 循环求余法：随着n增大，f(n)会超过`Int32`甚至`Int64`，导致最终结果错误；可以利用求余运算法则，在循环的过程中就进行求余操作。
+  >
+  > ```java
+  > public int fib(int n) {
+  >     int a = 0, b = 1, sum;
+  >     for(int i = 0; i < n; i++) {
+  >        	sum = (a + b) % 1000000007;
+  >         a = b;
+  >         b = sum;
+  >     }
+  >     return a;
+  > }
+  > ```
+
+- [剑指 Offer 10- II. 青蛙跳台阶问题](https://leetcode.cn/problems/qing-wa-tiao-tai-jie-wen-ti-lcof/)
+
+
+
+### 搜索算法
+
+- [剑指 Offer 04. 二维数组中的查找](https://leetcode.cn/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/)
+
+  > 利用该二维数组行和列非递减的性质，可以选择从数组左上角或右下角来进行二分搜索
+  >
+  > ```java
+  > public boolean findNumberIn2DArray(int[][] matrix, int target) {
+  >     if(matrix.length == 0) return false;
+  >     return searchNum(matrix, target, 0, matrix[0].length-1);
+  > }
+  > boolean searchNum(int[][] matrix, int target, int i, int j) {
+  >     if(i >= matrix.length || j < 0) return false;
+  >     if(matrix[i][j] > target) return searchNum(matrix, target, i, j-1);
+  >     else if(matrix[i][j] < target) return searchNum(matrix, target, i+1, j);
+  >     return true;
+  > }
+  > ```
+
+- [剑指 Offer 11. 旋转数组的最小数字](https://leetcode.cn/problems/xuan-zhuan-shu-zu-de-zui-xiao-shu-zi-lcof/)
+
+  > 寻找旋转数组的最小元素即为寻找**右排序数组**的首个元素`numbers[x]`，称x为**旋转点**
+  >
+  > 排序数组的查找问题首先考虑使用**二分法**解决——$O(log_2 n)$
+  >
+  > ```java
+  > public int minArray(int[] numbers) {
+  >  int i = 0, j = numbers.length - 1;
+  >  while (i < j) {
+  >      int m = (i + j) / 2;
+  >      if (numbers[m] > numbers[j]) i = m + 1;
+  >      else if (numbers[m] < numbers[j]) j = m;
+  >      else j--;
+  >  }
+  >  return numbers[i];
+  > }
+  > ```
+  >
+  > 注意：
+  >
+  > - 当`numbers[m] = numbers[j]`时，无法判断m在哪个排序数组中，可以执行`j--`缩小判断范围([证明](https://leetcode.cn/problems/xuan-zhuan-shu-zu-de-zui-xiao-shu-zi-lcof/solution/mian-shi-ti-11-xuan-zhuan-shu-zu-de-zui-xiao-shu-3/))。
+  > - 为什么不用`numbers[m]`和`numbers[i]`作比较：在`numbers[m] > numbers[i]`情况下，无法判断m在哪个排序数组中。
+
+-  [剑指 Offer 56 - I. 数组中数字出现的次数](https://leetcode.cn/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/)
+
+  > 要求时间复杂度 $O(N)$ ，空间复杂度$O(1)$ ，因此首先排除 **暴力法** 和 **哈希表统计法** 
+  >
+  > 1. nums数组整体异或计算出$x \bigotimes y$
+  > 2. 获取$x \bigotimes y$结果的首位1的位置，记录于m中
+  > 3. 根据第2步中的这一位对nums数组进行拆分
+  > 4. 两个子数组分别异或求出x和y
+  >
+  > ```java
+  > public int[] singleNumbers(int[] nums) {
+  >     int x = 0, y = 0, n = 0, m = 1;
+  >     for(int num : nums) {
+  >         n ^= num;
+  >     }
+  >     while((n & m) == 0) {
+  >         m <<= 1;
+  >     }
+  >     for(int num : nums) {
+  >         if((num & m) != 0) x ^= num;
+  >         else y ^= num;
+  >     }
+  >     return new int[] {x, y};
+  > }
+  > ```
+
+- [剑指 Offer 56 - II. 数组中数字出现的次数 II](https://leetcode.cn/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-ii-lcof/)
+
+  > 题目没有要求时间复杂度，但我们仍限制时间复杂度 $O(N)$ ，空间复杂度$O(1)$ ；
+  >
+  > 对于出现三次的数字，各**二进制位**出现的次数都是3的倍数，因此统计所有数字的各二进制位中1的出现次数，并对3求余，结果则为只出现一次的数字。
+  >
+  > 理解：每个二进制位，有限状态自动机(卡诺图法化简)
+  >
+  > ```java
+  > public int singleNumber(int[] nums) {
+  >     int ones = 0, twos = 0;
+  >     for(int num : nums) {
+  >         ones = ones ^ num & ~twos;
+  >         twos = twos ^ num & ~ones;
+  >     }
+  >     return ones;
+  > }
+  > ```
