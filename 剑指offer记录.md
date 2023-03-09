@@ -616,5 +616,109 @@
   > ```
   >
 
+- [剑指 Offer 19. 正则表达式匹配](https://leetcode.cn/problems/zheng-ze-biao-da-shi-pi-pei-lcof/)
 
+  > 总体思路：从`s[:1]`和`p[:1]`是否能匹配开始判断，每轮添加一个字符并判断是否匹配，最终得到`s[:n]`是否能与`p[:m]`匹配；
+  >
+  > 下一轮的匹配状态有两种：
+  >
+  > - 添加一个字符$s_{i+1}$后是否能匹配？
+  > - 添加一个字符$p_{i+1}$后是否能匹配？
+  >
+  > 状态定义：`dp[i][j]`代表字符串`s`的前`i`个字符和`p`的前`j`个字符能否匹配
+  >
+  > 转移方程（`dp[0][0]=true`代表空字符状态，`dp[i][j]`对应的添加字符是`s[i-1]`和`p[j-1]`）：
+  >
+  > - **当`p[j-1]='*'`时，`dp[i][j]`为true当满足以下任意情况：**
+  >   1. **`dp[i][j-2]`，表示将字符组合`p[j-2]*`看作出现0次**
+  >   2. **`dp[i-1][j] && s[i-1]==p[j-2]`，表示让`p[j-2]`多出现1次**
+  >   3. **`dp[i-1][j] && p[j-2]=='.'`，表示让`'.'`多出现1次**
+  > - **当`p[j-1]!='*'`时，`dp[i][j]`为true当满足以下任意情况：**
+  >   1. **`dp[i-1][j-1] && s[i-1]==p[j-1]`，表示让字符`p[j-1]`多出现1次**
+  >   2. **`dp[i-1][j-1] && p[j-1]=='.'`，即将字符`.`看作字符`s[i-1]`**
+  >
+  > dp矩阵首行初始化：`dp[0][0] = true`以及`dp[0][j] = dp[0][j-2]&&p[j-1]='*'`
+  >
+  > 【做题时状态的转移方程可以结合dp矩阵的填充过程进行总结】
+  >
+  > <img src="https://pic.leetcode-cn.com/1614516402-gBEUfu-Picture19.png" alt="Search in sidebar query" style="zoom:25%;" />
+  >
+  > ```java
+  > public boolean isMatch(String s, String p) {
+  >     int m = s.length() + 1, n = p.length() + 1;
+  >     boolean[][] dp = new boolean[m][n];
+  >     dp[0][0] = true;
+  >     for(int j = 2; j < n; j += 2) {
+  >         dp[0][j] = dp[0][j - 2] && p.charAt(j - 1) == '*';
+  >     }
+  >     for(int i = 1; i < m;i++){
+  >         for(int j = 1; j < n; j++) {
+  >             if(p.charAt(j-1) == '*') {
+  >                 dp[i][j] = (dp[i][j-2]) || (dp[i-1][j] && s.charAt(i-1)==p.charAt(j-2)) || (dp[i-1][j] && p.charAt(j-2)=='.'); 
+  >             } else {
+  >                 dp[i][j] = (dp[i-1][j-1] && s.charAt(i-1) == p.charAt(j-1)) || (dp[i-1][j-1] && p.charAt(j-1) == '.');
+  >             }
+  >         }
+  >     }
+  >     return dp[m-1][n-1];
+  > }
+  > ```
 
+- [剑指 Offer 49. 丑数](https://leetcode.cn/problems/chou-shu-lcof/)
+
+  > 递推性质："丑数 = 某较小丑数 * 因子(2/3/5)"
+  >
+  > 状态定义：`dp[i]`代表第`i+1`个丑数，a,b,c分别表示不同因子下较小丑数的dp数组索引
+  >
+  > 转移方程（初始状态：`dp[0]=1`,`a=1,b=1,c=1`）：
+  >
+  > - `dp[i] = min(2*dp[a], 3*dp[b], 5*dp[c]);`
+  > - 更新索引a,b,c的值，例如，上一步如果`dp[i]`是用`2*dp[a]`进行更新，则索引a++，其他同理
+  >
+  > ```java
+  > public int nthUglyNumber(int n) {
+  >     int a = 0, b = 0, c = 0;
+  >     int[] dp = new int[n];
+  >     dp[0] = 1;
+  >     for(int i = 1; i < n; i++) {
+  >         dp[i] = Math.min(Math.min(2*dp[a], 3*dp[b]), 5*dp[c]);
+  >         if(dp[i] == 2*dp[a]) a++;
+  >         if(dp[i] == 3*dp[b]) b++;
+  >         if(dp[i] == 5*dp[c]) c++;
+  >     }
+  >     return dp[n-1];
+  > }
+  > ```
+
+- [剑指 Offer 60. n个骰子的点数](https://leetcode.cn/problems/nge-tou-zi-de-dian-shu-lcof/)
+
+  > 暴力法：$O(6^n)$
+  >
+  > 动态规划
+  >
+  > 状态定义：令输入n个骰子的解（概率列表）为f(n)，其中「点数和」`x`的概率为f(n, x)。
+  >
+  > 转移方程：
+  > $$
+  > f(n, x) = \sum^{6}_{i=1}f(n-1, x-i) \times \frac{1}{6}
+  > $$
+  > 越界问题：
+  >
+  > <img src="https://pic.leetcode-cn.com/1614960989-mMonMs-Picture3.png" alt="Picture3.png" style="zoom:25%;" />
+  >
+  > ```java
+  > public double[] dicesProbability(int n) {
+  >     double[] dp = new double[6];
+  >     Arrays.fill(dp, 1.0 / 6.0);
+  >     for(int i = 2; i <= n; i++) {
+  >         double[] tmp = new double[5 * i + 1];
+  >         for(int j = 0; j < dp.length; j++) {
+  >             for(int k = 0; k < 6; k++) {
+  >                 tmp[j + k] += dp[j] / 6.0;
+  >             }
+  >         }
+  >         dp = tmp;
+  >     }
+  >     return dp;
+  > }
+  > ```
