@@ -362,35 +362,6 @@
 
 ## 具体算法类题目
 
-### 斐波那契数列
-
-- [剑指 Offer 10- I. 斐波那契数列](https://leetcode.cn/problems/fei-bo-na-qi-shu-lie-lcof/)
-
-  > 1. 递归法
-  >
-  > 2. 记忆化递归法
-  >
-  > 3. 动态规划——时间和空间最佳解法
-  >
-  >    `dp[i+1] = dp[i] + dp[i-1]`，`dp[0] = 0`, `dp[1] = 1`,返回`dp[n]`
-  >
-  >    - 空间复杂度优化：只需初始化三个整型变量`sum`，`a`，`b`，利用辅助变量`sum`使`a`和`b`交替前进
-  >    - 循环求余法：随着n增大，f(n)会超过`Int32`甚至`Int64`，导致最终结果错误；可以利用求余运算法则，在循环的过程中就进行求余操作。
-  >
-  > ```java
-  > public int fib(int n) {
-  >     int a = 0, b = 1, sum;
-  >     for(int i = 0; i < n; i++) {
-  >        	sum = (a + b) % 1000000007;
-  >         a = b;
-  >         b = sum;
-  >     }
-  >     return a;
-  > }
-  > ```
-
-- [剑指 Offer 10- II. 青蛙跳台阶问题](https://leetcode.cn/problems/qing-wa-tiao-tai-jie-wen-ti-lcof/)
-
 
 
 ### 搜索算法
@@ -480,3 +451,170 @@
   >     return ones;
   > }
   > ```
+
+
+
+### 动态规划
+
+- [剑指 Offer 10- I. 斐波那契数列](https://leetcode.cn/problems/fei-bo-na-qi-shu-lie-lcof/)
+
+  > 1. 递归法
+  >
+  > 2. 记忆化递归法
+  >
+  > 3. 动态规划——时间和空间最佳解法
+  >
+  >    `dp[i+1] = dp[i] + dp[i-1]`，`dp[0] = 0`, `dp[1] = 1`,返回`dp[n]`
+  >
+  >    - 空间复杂度优化：只需初始化三个整型变量`sum`，`a`，`b`，利用辅助变量`sum`使`a`和`b`交替前进
+  >    - 循环求余法：随着n增大，f(n)会超过`Int32`甚至`Int64`，导致最终结果错误；可以利用求余运算法则，在循环的过程中就进行求余操作。
+  >
+  > ```java
+  > public int fib(int n) {
+  >     int a = 0, b = 1, sum;
+  >     for(int i = 0; i < n; i++) {
+  >        	sum = (a + b) % 1000000007;
+  >         a = b;
+  >         b = sum;
+  >     }
+  >     return a;
+  > }
+  > ```
+
+- [剑指 Offer 10- II. 青蛙跳台阶问题](https://leetcode.cn/problems/qing-wa-tiao-tai-jie-wen-ti-lcof/)
+
+- [剑指 Offer 63. 股票的最大利润](https://leetcode.cn/problems/gu-piao-de-zui-da-li-run-lcof/)
+
+  > 状态定义：dp[i]代表以prices[i]为结尾的子数组的最大利润（简称为前i日的最大利润）
+  >
+  > 转移方程（初始：`dp[0] = 0`）：
+  >
+  > 前i日的最大利润 = max(前(i-1)日的最大利润，第i日价格-前i日最低价格)
+  >
+  > `dp[i] = max(dp[i-1], prices[i] - min(prices[0:i]))`
+  >
+  > 时间复杂度降低：在遍历的过程中更新前i日最低价格；
+  >
+  > 空间复杂度降低：使用一个变量`profit`代替dp列表
+  >
+  > ```java
+  > public int maxProfit(int[] prices) {
+  >     int cost = Integer.MAX_VALUE, profit = 0;
+  >     for(int price : prices) {
+  >         cost = Math.min(cost, price);
+  >         profit = Math.max(profit, price - cost);
+  >     }
+  >     return profit;
+  > }
+  > ```
+
+- [剑指 Offer 42. 连续子数组的最大和](https://leetcode.cn/problems/lian-xu-zi-shu-zu-de-zui-da-he-lcof/)
+
+  > 要求时间复杂度为O(n)——动态规划
+  >
+  > 状态定义：dp[i]代表以元素nums[i]为结尾的连续子数组最大和
+  >
+  > 转移方程(初始：`dp[0] = nums[0]`)：
+  >
+  > - 当`dp[i-1] > 0`：`dp[i] = dp[i-1] + nums[i];`
+  > - 当`dp[i-1] <= 0`: `dp[i] = nums[i];`
+  >
+  > 空间复杂度降低：将原数组nums用作dp列表，即直接在nums上修改（也可以与上一题使用单独的一个变量来代替dp列表）
+  >
+  > ```java
+  > public int maxSubArray(int[] nums) {
+  >     int res = nums[0];
+  >     for(int i = 0; i < nums.length; i++) {
+  >         nums[i] += Math.max(nums[i-1], 0);
+  >         res = Math.max(res, nums[i]);
+  >     }
+  >     return res;
+  > }
+  > ```
+
+- [剑指 Offer 47. 礼物的最大价值](https://leetcode.cn/problems/li-wu-de-zui-da-jie-zhi-lcof/)
+
+  > 空间复杂度降低：将原矩阵grid用作dp矩阵
+  >
+  > ```java
+  > public int maxValue(int[][] grid) {
+  >     int m = grid.length, n = grid[0].length;
+  >     for(int j = 1; j < n; j++) // 初始化第一行
+  >         grid[0][j] += grid[0][j - 1];
+  >     for(int i = 1; i < m; i++) // 初始化第一列
+  >         grid[i][0] += grid[i - 1][0];
+  >     for(int i = 1; i < m; i++)
+  >         for(int j = 1; j < n; j++) 
+  >             grid[i][j] += Math.max(grid[i][j - 1], grid[i - 1][j]);
+  >     return grid[m - 1][n - 1];
+  > }
+  > ```
+
+- [剑指 Offer 46. 把数字翻译成字符串](https://leetcode.cn/problems/ba-shu-zi-fan-yi-cheng-zi-fu-chuan-lcof/)
+
+  > 状态定义：dp[i]代表以$x_i$结尾的数字的翻译方案数量
+  >
+  > 转移方程（采用**从右向左**遍历——整数求余的顺序，从`dp[n-2]`计算至`dp[0]`，初始：`dp[n-1]=1`, `dp[n-2] = 1`）：
+  >
+  > - 当可以余数$x_i$和余数$x_{i-1}$可以组合翻译时，`dp[i] = dp[i+1] + dp[i+2];`
+  > - 否则，`dp[i] = dp[i+1];`
+  >
+  > 空间复杂度降低：用变量`a`表示`dp[i+1]`，变量b表示`dp[i+2]`，利用辅助变量`c`使`a`和`b`交替前进，用x，y用于记录求余。
+  >
+  > ```java
+  > public int translateNum(int num) {
+  >     int a = 1, b = 1, x, y = num % 10;
+  >     while(num != 0) {
+  >         num /= 10;
+  >         x = num % 10;
+  >         int tmp = 10 * x + y;
+  >         int c = (tmp >= 10 && tmp <= 25) ? a + b : a;
+  >         b = a;
+  >         a = c;
+  >         y = x;
+  >     }
+  >     return a;
+  > }
+  > ```
+
+- [剑指 Offer 48. 最长不含重复字符的子字符串](https://leetcode.cn/problems/zui-chang-bu-han-zhong-fu-zi-fu-de-zi-zi-fu-chuan-lcof/)
+
+  > 状态定义：`dp[j]`代表以`c[j]`结尾的最长不重复子串的长度
+  >
+  > 转移方程：设`c[j]`左边距离最近的相同字符为`c[i]`，
+  >
+  > 1. 当`i < 0`，即`c[j]`左边无相同字符，则`dp[j] = dp[j-1] + 1;`
+  > 2. 当`dp[j-1] < j - i`时，说明字符c[i]在子串`dp[j-1]`**区间之外**，则`dp[j] = dp[j-1] + 1;`
+  > 3. 当`dp[j-1] >= j - i`时，说明字符c[i]在子串`dp[j-1]`**区间之内**，则`dp[j] = j - i;`
+  >
+  > 如何获取`i`，在遍历时使用哈希表保存并更新。
+  >
+  > ```java
+  > public int lengthOfLongestSubstring(String s) {
+  >     if(s.length() == 0) return 0;
+  >     int res = 1, tmp = 1;
+  >     char[] c = s.toCharArray();
+  >     Map<Character, Integer> map = new HashMap<>();
+  >     map.put(c[0], 0);
+  >     for(int j = 1; j < c.length; j++) {
+  >         if(map.get(c[j]) == null) {
+  >             map.put(c[j], j);
+  >             tmp = tmp + 1;
+  >         } else {
+  >             int i = map.get(c[j]);
+  >             map.put(c[j], j);
+  >             if(tmp < j - i) {
+  >                 tmp = tmp + 1;
+  >             } else {
+  >                 tmp = j - i;
+  >             }
+  >         }
+  >         res = Math.max(res, tmp);
+  >     }
+  >     return res;
+  > }
+  > ```
+  >
+
+
+
